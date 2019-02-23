@@ -49,7 +49,7 @@ public class FlutterFullPdfViewerPlugin implements MethodCallHandler, PluginRegi
                 resize(call, result);
                 break;
             case "getPageCount":
-                getPage(call, result);
+                getPageCount(call, result);
                 break;
             case "getPage":
                 getPage(call, result);
@@ -71,7 +71,7 @@ public class FlutterFullPdfViewerPlugin implements MethodCallHandler, PluginRegi
         if (flutterFullPdfViewerManager != null) {
             page = flutterFullPdfViewerManager.getPageCount();
         }
-        result.success(null);
+        result.success(page);
         return page;
     }
 
@@ -80,18 +80,18 @@ public class FlutterFullPdfViewerPlugin implements MethodCallHandler, PluginRegi
         if (flutterFullPdfViewerManager != null) {
             page = flutterFullPdfViewerManager.getPage();
         }
-        result.success(null);
+        result.success(page);
         return page;
     }
 
     public int setPage(MethodCall call, final MethodChannel.Result result) {
-        Map<String, Number> rc = call.argument("rect");
-        int page = -1;
+        int targetPage = call.argument("pageNumber");
+        int resultPage = -1;
         if (flutterFullPdfViewerManager != null) {
-            page = flutterFullPdfViewerManager.setPage(rc.get("page").intValue());
+            resultPage = flutterFullPdfViewerManager.setPage(targetPage);
         }
         result.success(null);
-        return page;
+        return resultPage;
     }
 
     private void openPDF(MethodCall call, MethodChannel.Result result) {

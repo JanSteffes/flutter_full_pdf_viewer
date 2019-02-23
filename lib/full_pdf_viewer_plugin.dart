@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_full_pdf_viewer/models/full_pdf_viewer_pageinfo.dart';
 
 enum PDFViewState { shouldStart, startLoad, finishLoad }
 
@@ -16,12 +17,23 @@ class PDFViewerPlugin {
   }
 
   final _onDestroy = new StreamController<Null>.broadcast();
+  final _onPageChange = new StreamController<FullPdfViewerPageInfo>.broadcast();
+
   Stream<Null> get onDestroy => _onDestroy.stream;
+  Stream<FullPdfViewerPageInfo> get onPageChange => _onPageChange.stream;
+
   Future<Null> _handleMessages(MethodCall call) async {
     switch (call.method) {
       case 'onDestroy':
-        _onDestroy.add(null);
+        if (!_onDestroy.isClosed) {
+          _onDestroy.add(null);
+        }
         break;
+      case 'onPageChange':
+        var casted = call.arguments as List<int>;
+        var model =
+            FullPdfViewerPageInfo(page: casted[0], pageCount: casted[1]);
+        _onPageChange.add(model);
     }
   }
 
@@ -55,8 +67,19 @@ class PDFViewerPlugin {
   /// Close all Streams
   void dispose() {
     _onDestroy.close();
+    _onPageChange.close();
     _instance = null;
   }
+
+  /// Returns the current page
+  Future<dynamic> getPage() => _channel.invokeMethod('getPage');
+
+  /// Returns the current pageCount
+  Future<dynamic> getPageCount() => _channel.invokeMethod('getPageCount');
+
+  /// Sets the current page
+  Future<dynamic> setPage(int pageNumber) => _channel
+      .invokeMethod('setPage', <String, dynamic>{'pageNumber': pageNumber});
 
   /// resize PDFViewer
   Future<Null> resize(Rect rect) async {

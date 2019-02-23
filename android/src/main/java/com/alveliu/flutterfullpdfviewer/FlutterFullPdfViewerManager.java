@@ -33,8 +33,8 @@ class FlutterFullPdfViewerManager implements OnPageChangeListener{
     public void onPageChanged(int page, int pageCount) {
         pageNumber = page;
         activity.setTitle(String.format("%s %s / %s", "pdfFileName", page + 1, pageCount));
+        FlutterFullPdfViewerPlugin.channel.invokeMethod("onPageChange", new int[] { page, pageCount });
     }
-
 
     void openPDF(String path) {
         File file = new File(path);
@@ -43,7 +43,9 @@ class FlutterFullPdfViewerManager implements OnPageChangeListener{
                 .swipeHorizontal(false)
                 .enableDoubletap(true)
                 .defaultPage(0)
+                .onPageChange(this)
                 .load();
+
     }
 
     int getPageCount() {
